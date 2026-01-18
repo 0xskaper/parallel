@@ -29,7 +29,7 @@ void checkResult(float *hostRef, float *gpuRef, int N) {
     printf("Array match\n\n");
 }
 
-void initializeData(int *ip, int size) {
+void intializeData(int *ip, int size) {
   for (int idx = 0; idx < size; idx++) {
     ip[idx] = idx;
   }
@@ -50,7 +50,7 @@ int main(int argc, char **argv) {
   printf("%s Starting...\n", argv[0]);
 
   int dev = 0;
-  cudaSetDevice(dev);
+  cudaSetDevice();
 
   int nElement = 32;
   printf("Vector size: %d\n", nElement);
@@ -59,45 +59,7 @@ int main(int argc, char **argv) {
 
   float *h_A, *h_B, *hostRef, *gpuRef;
   h_A = (float *)malloc(nBytes);
-  h_B = (float *)malloc(nBytes);
+  h_b = (float *)malloc(nBytes);
   hostRef = (float *)malloc(nBytes);
   gpuRef = (float *)malloc(nBytes);
-
-  initializeData(h_A, nElement);
-  initializeData(h_B, nElement);
-
-  memset(hostRef, 0, nBytes);
-  memset(gpuRef, 0, nBytes);
-
-  float *d_A, *d_B, *d_C;
-  cudaMalloc((float **)&d_A, nBytes);
-  cudaMalloc((float **)&d_B, nBytes);
-  cudaMalloc((float **)&d_C, nBytes);
-
-  cudaMemcpy(d_A, h_A, nBytes, cudaMemcpyHostToDevice);
-  cudaMemcpy(d_B, h_B, nBytes, cudaMemcpyHostToDevice);
-
-  dim3 block(nElement);
-  dim3 grid(nElement / block.x);
-
-  sumArrayOnGPU<<<grid, block>>>(d_A, d_B, d_C);
-
-  printf("Execution configuration <<<%d, %d>>>\n", grid.x, block.x);
-
-  cudaMemcpy(gpuRef, d_C, nBytes, cudaMemcpyDeviceToHost);
-
-  sumArrayOnHost(h_A, h_B, hostRef, nElement);
-
-  checkResult(hostRef, gpuRef, nElement);
-
-  cudaFree(d_A);
-  cudaFree(d_B);
-  cudaFree(d_C);
-
-  free(h_A);
-  free(h_B);
-  free(hostRef);
-  free(gpuRef);
-
-  return (0);
 }
