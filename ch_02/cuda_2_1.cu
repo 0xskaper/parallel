@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
   cudaSetDevice(dev);
 
   int nElem = 32;
-  printf("Vector size: %d\n", argv[0]);
+  printf("Vector size: %d\n", nElem);
 
   size_t nBytes = nElem * sizeof(float);
 
