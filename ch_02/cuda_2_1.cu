@@ -1,5 +1,7 @@
 #include <cuda_runtime.h>
 #include <stdio.h>
+#include <sys/time.h>
+#include <unistd.h>
 
 #define CHECK(call)                                                            \
   {                                                                            \
@@ -13,6 +15,12 @@
 void synthetic(float *ip, int N) {
   for (int i = 0; i < N; i++)
     ip[i] = i;
+}
+
+double cpuSecond() {
+  struct timeval tp;
+  gettimeofday(&tp, NULL);
+  return ((double)tp.tv_sec + (double)tp.tv_usec * 1.0e-6);
 }
 
 void checkResult(float *hostRef, float *gpuRef, const int N) {
@@ -75,12 +83,19 @@ int main(int argc, char **argv) {
   dim3 block(nElem);
   dim3 grid(nElem / block.x);
 
+  double iStart = cpuSecond();
   sumArraysOnGPU<<<grid, block>>>(d_A, d_B, d_C);
-  printf("Execution configuration <<<%d, %d>>>\n", grid.x, block.x);
+  cudaDeviceSynchronize();
+  double iElapsed = cpuSecond() - iStart;
+  printf("Execution configuration <<<%d, %d>>> || TIME -> %f \n", grid.x, block.x, iElapsed);
 
   cudaMemcpy(gpuRef, d_C, nBytes, cudaMemcpyDeviceToHost);
 
+  iStart = cpuSecond();
   sumArraysOnCPU(h_A, h_B, hostRef, nElem);
+  iElapsed = cpuSecond() - iStart;
+
+  printf("\n TIME -> %f", iElapsed);
   checkResult(hostRef, gpuRef, nElem);
 
   cudaFree(d_A);
