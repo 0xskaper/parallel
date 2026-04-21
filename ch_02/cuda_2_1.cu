@@ -95,7 +95,7 @@ int main(int argc, char **argv) {
   sumArraysOnCPU(h_A, h_B, hostRef, nElem);
   iElapsed = cpuSecond() - iStart;
 
-  printf("\n TIME -> %f", iElapsed);
+  printf("\n TIME -> %f \n", iElapsed);
   checkResult(hostRef, gpuRef, nElem);
 
   cudaFree(d_A);
