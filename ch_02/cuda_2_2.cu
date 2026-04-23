@@ -19,8 +19,8 @@ void initialInt(int *ip, int size) {
 void printMatrix(int *C, const int nx, const int ny) {
   int *ic = C;
   printf("\n MATRIX -> (%d, %d)\n", nx, ny);
-  for (int iy = 0; iy < nx; iy++) {
-    for (int ix = 0; ix < ny; ix++) {
+  for (int iy = 0; iy < ny; iy++) {
+    for (int ix = 0; ix < nx; ix++) {
       printf("%3d", ic[ix]);
     }
     ic += nx;
