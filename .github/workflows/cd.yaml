@@ -5,5 +5,18 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - run: ssh -i ${{ secrets.PRIME_SSH }} ubuntu@64.247.196.52 "cd /parallel && git pull"
+      - name: Checkout Code
+        uses: actions/checkout@v6
+
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.PRIME_SSH }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+      - name: Deploy PRIME
+        run: |
+          ssh -i ~/.ssh/id_ed25519 ssh ubuntu@64.247.196.52
+          cd ~/parallel
+          git pull origin nexus
