@@ -18,6 +18,6 @@ jobs:
       - name: Deploy PRIME
         run: |
           ssh -i ~/.ssh/id_ed25519 ubuntu@64.247.196.52
-          cd ~/parallel
+          cd /home/ubuntu/parallel
           git pull orgin nexus
           echo "SUCCESS"
