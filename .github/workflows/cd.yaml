@@ -17,9 +17,8 @@ jobs:
 
       - name: Deploy PRIME
         run: |
-          ssh -i ~/.ssh/id_ed25519 ubuntu@64.247.196.52
-          git clone https://github.com/0xskaper/parallel.git
-          cd parallel
-          pwd
-          git pull
+          ssh -T -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no ubuntu@64.247.196.52 << 'EOF'
+          cd ~/parallel
+          git pull origin nexus
           echo "SUCCESS"
+          EOF
