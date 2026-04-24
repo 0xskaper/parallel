@@ -1,0 +1,9 @@
+on:
+  push:
+    branches: [nexus]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - run: ssh -i ${{ secrets.PRIME_SSH }} ubuntu@64.247.196.52 "cd /parallel && git pull"
