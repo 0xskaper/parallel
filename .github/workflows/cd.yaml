@@ -19,4 +19,5 @@ jobs:
         run: |
           ssh -i ~/.ssh/id_ed25519 ubuntu@64.247.196.52
           cd ~/parallel
+          git pull orgin nexus
           echo "SUCCESS"
