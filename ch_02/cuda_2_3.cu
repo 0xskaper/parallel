@@ -96,7 +96,7 @@ int main(int argc, char **argv) {
   iStart = cpuSecond();
   sumMatrixOnCPU(h_A, h_B, hostRef, nx, ny);
   iElapsed = cpuSecond() - iStart;
-  printf("CPU TIME ELAPSED -> %f", iElapsed);
+  printf("CPU TIME ELAPSED -> %f\n", iElapsed);
 
   float *d_MatA, *d_MatB, *d_MatC;
   cudaMalloc((void **)&d_MatA, nBytes);
