@@ -5,9 +5,10 @@
 #define CHECK(call)                                                            \
   {                                                                            \
     cudaError_t error = call;                                                  \
-    if (error == cudaSuccess) {                                                \
+    if (error != cudaSuccess) {                                                \
       printf("Error -> %s | %d\n", __FILE__, __LINE__);                        \
       printf("Code -> %d || Reason: %s\n", error, cudaGetErrorString(error));  \
+      exit(1);                                                                 \
     }                                                                          \
   }
 
