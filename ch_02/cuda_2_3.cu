@@ -113,7 +113,7 @@ int main(int argc, char **argv) {
   dim3 grid((nx + block.x - 1) / block.x, (ny + block.y - 1) / block.y);
 
   iStart = cpuSecond();
-  sumMatrixOnGPU<<<block, grid>>>(d_MatA, d_MatB, d_MatC, nx, ny);
+  sumMatrixOnGPU<<<grid, block>>>(d_MatA, d_MatB, d_MatC, nx, ny);
   cudaDeviceSynchronize();
   iElapsed = cpuSecond() - iStart;
   printf("sumMatrixOnGPU<<<(%d, %d), (%d, %d)>>> Elapsed %f Sec\n", grid.x,
