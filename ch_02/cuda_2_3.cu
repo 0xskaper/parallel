@@ -16,7 +16,6 @@ void checkResult(float *hostRef, float *gpuRef, const int N) {
   double epsilon = 1.0E-8;
   bool match = 1;
   for (int i = 0; i < N; i++) {
-    printf("Host %5.2f || Host %5.2f @ %d\n", hostRef[i], gpuRef[i], i);
     if (abs(hostRef[i] - gpuRef[i]) > epsilon) {
       match = 0;
       printf("Arrays do not match!\n");
