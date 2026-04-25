@@ -58,7 +58,7 @@ void sumMatrixOnCPU(float *A, float *B, float *C, const int nx, const int ny) {
 __global__ void sumMatrixOnGPU(float *MatA, float *MatB, float *MatC, int nx,
                                int ny) {
   unsigned int ix = threadIdx.x + blockIdx.x * blockDim.x;
-  unsigned int iy = threadIdx.x + blockIdx.x * blockDim.x;
+  unsigned int iy = threadIdx.y + blockIdx.y * blockDim.y;
   unsigned int idx = iy * nx + ix;
   if (ix < nx && iy < ny)
     MatC[idx] = MatA[idx] + MatB[idx];
