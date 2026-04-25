@@ -97,7 +97,7 @@ int main(int argc, char **argv) {
 
   float *d_MatA, *d_MatB, *d_MatC;
   cudaMalloc((void **)&d_MatA, nBytes);
-  cudaMalloc((void **)&d_MatC, nBytes);
+  cudaMalloc((void **)&d_MatB, nBytes);
   cudaMalloc((void **)&d_MatC, nBytes);
 
   cudaMemcpy(d_MatA, h_A, nBytes, cudaMemcpyHostToDevice);
