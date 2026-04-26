@@ -106,7 +106,7 @@ int main(int argc, char **argv) {
   cudaMemcpy(d_MatB, h_B, nBytes, cudaMemcpyHostToDevice);
 
   int dimx = 32;
-  int dimy = 32;
+  int dimy = 16;
 
   dim3 block(dimx, dimy);
   dim3 grid((nx + block.x - 1) / block.x, (ny + block.y - 1) / block.y);
