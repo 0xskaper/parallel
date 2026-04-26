@@ -105,7 +105,7 @@ int main(int argc, char **argv) {
   cudaMemcpy(d_MatA, h_A, nBytes, cudaMemcpyHostToDevice);
   cudaMemcpy(d_MatB, h_B, nBytes, cudaMemcpyHostToDevice);
 
-  int dimx = 16;
+  int dimx = 32;
   int dimy = 16;
 
   dim3 block(dimx, dimy);
