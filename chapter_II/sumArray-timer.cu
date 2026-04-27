@@ -81,7 +81,7 @@ int main(int argc, char **argv) {
   cudaMemcpy(d_B, h_B, nBytes, cudaMemcpyHostToDevice);
 
   dim3 block(nElem);
-  dim3 grid(nElem / block.x);
+  dim3 grid(nElem / 128);
 
   printf("BLOCK.x -> %d\n", block.x);
 
