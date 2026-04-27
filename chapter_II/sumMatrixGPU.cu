@@ -1,5 +1,4 @@
 #include <cuda_runtime.h>
-#include <cuda_runtime_api.h>
 #include <stdio.h>
 #include <sys/time.h>
 
@@ -64,6 +63,15 @@ __global__ void sumMatrixOnGPU1D_1D(float *MatA, float *MatB, float *MatC,
       MatC[idx] = MatA[idx] + MatB[idx];
     }
   }
+}
+
+__global__ void sumMatrixOnGPU_2D_1D(float *MatA, float *MatB, float *MatC,
+                                     int nx, int ny) {
+  unsigned int ix = threadIdx.x + blockIdx.x + blockDim.x;
+  unsigned int iy = threadIdx.y;
+  unsigned int idx = iy * nx + ix;
+  if (ix < nx && iy < ny)
+    MatC[idx] = MatA[idx] + MatB[idx];
 }
 
 __global__ void sumMatrixOnGPU(float *MatA, float *MatB, float *MatC, int nx,
@@ -177,6 +185,49 @@ int main(int argc, char **argv) {
   cudaDeviceSynchronize();
   printf("GPU 1D_1D <<<(%d, %d), (%d, %d)>>> ELAPSED -> %f Sec\n", grid_3.x,
          grid_3.y, block_3.x, block_3.y, iElapsed);
+  cudaMemcpy(gpuRef, hostRef, nBytes, cudaMemcpyDeviceToHost);
+  checkResult(hostRef, gpuRef, nxy);
+
+  // 1D_1D
+  dimx = 128;
+  dimy = 1;
+
+  dim3 block_4(dimx, dimy);
+  dim3 grid_4((nx + block.x - 1) / block.x);
+
+  iStart = cpuSecond();
+  sumMatrixOnGPU1D_1D<<<grid_4, block_4>>>(d_MatA, d_MatB, d_MatC, nx, ny);
+  cudaDeviceSynchronize();
+  printf("GPU 1D_1D <<<(%d, %d), (%d, %d)>>> ELAPSED -> %f Sec\n", grid_4.x,
+         grid_4.y, block_4.x, block_4.y, iElapsed);
+  cudaMemcpy(gpuRef, hostRef, nBytes, cudaMemcpyDeviceToHost);
+  checkResult(hostRef, gpuRef, nxy);
+
+  // 2D_1D
+  dimx = 32;
+
+  dim3 block_5(dimx);
+  dim3 grid_5((nx + block.x - 1) / block.x, ny);
+
+  iStart = cpuSecond();
+  sumMatrixOnGPU1D_1D<<<grid_5, block_5>>>(d_MatA, d_MatB, d_MatC, nx, ny);
+  cudaDeviceSynchronize();
+  printf("GPU 1D_1D <<<(%d, %d), (%d, %d)>>> ELAPSED -> %f Sec\n", grid_5.x,
+         grid_5.y, block_5.x, block_5.y, iElapsed);
+  cudaMemcpy(gpuRef, hostRef, nBytes, cudaMemcpyDeviceToHost);
+  checkResult(hostRef, gpuRef, nxy);
+
+  // 2D_1D
+  dimx = 256;
+
+  dim3 block_6(dimx);
+  dim3 grid_6((nx + block.x - 1) / block.x, ny);
+
+  iStart = cpuSecond();
+  sumMatrixOnGPU1D_1D<<<grid_6, block_6>>>(d_MatA, d_MatB, d_MatC, nx, ny);
+  cudaDeviceSynchronize();
+  printf("GPU 1D_1D <<<(%d, %d), (%d, %d)>>> ELAPSED -> %f Sec\n", grid_6.x,
+         grid_6.y, block_6.x, block_6.y, iElapsed);
   cudaMemcpy(gpuRef, hostRef, nBytes, cudaMemcpyDeviceToHost);
   checkResult(hostRef, gpuRef, nxy);
 
