@@ -39,6 +39,16 @@ void checkResult(float *hostRef, float *gpuRef, const int N) {
     printf("Arrays match.\n\n");
 }
 
+__global__ void sumOnArrayOnGPU_2(float *A, float *B, float *C, const int N) {
+  int idx = (threadIdx.x + blockIdx.x * blockDim.x) * 2;
+  if (idx < N)
+    C[idx] = A[idx] + B[idx];
+
+  if (idx + 1 < N) {
+    C[idx + 1] = A[idx + 1] + B[idx + 1];
+  }
+}
+
 __global__ void sumArraysOnGPU(float *A, float *B, float *C) {
   int idx = threadIdx.x;
   C[idx] = A[idx] + B[idx];
@@ -80,7 +90,9 @@ int main(int argc, char **argv) {
   cudaMemcpy(d_A, h_A, nBytes, cudaMemcpyHostToDevice);
   cudaMemcpy(d_B, h_B, nBytes, cudaMemcpyHostToDevice);
 
-  dim3 block(nElem);
+  int blockSize = 256;
+
+  dim3 block(blockSize);
   dim3 grid(nElem / block.x);
 
   printf("BLOCK.x -> %d\n", block.x);
@@ -91,6 +103,28 @@ int main(int argc, char **argv) {
   double iElapsed = cpuSecond() - iStart;
   printf("Execution configuration <<<%d, %d>>> || TIME -> %f \n", grid.x,
          block.x, iElapsed);
+
+  cudaMemcpy(gpuRef, d_C, nBytes, cudaMemcpyDeviceToHost);
+
+  dim3 block_2(blockSize);
+  dim3 grid_2(nElem / block_2.x);
+  iStart = cpuSecond();
+  sumArraysOnGPU<<<grid_2, block_2>>>(d_A, d_B, d_C);
+  cudaDeviceSynchronize();
+  iElapsed = cpuSecond() - iStart;
+  printf("Execution configuration <<<%d, %d>>> || TIME -> %f \n", grid_2.x,
+         block_2.x, iElapsed);
+
+  cudaMemcpy(gpuRef, d_C, nBytes, cudaMemcpyDeviceToHost);
+
+  dim3 block_3(blockSize);
+  dim3 grid_3(nElem / block_3.x);
+  iStart = cpuSecond();
+  sumOnArrayOnGPU_2<<<grid_3, block_3>>>(d_A, d_B, d_C);
+  cudaDeviceSynchronize();
+  iElapsed = cpuSecond() - iStart;
+  printf("Execution configuration <<<%d, %d>>> || TIME -> %f \n", grid_3.x,
+         block_3.x, iElapsed);
 
   cudaMemcpy(gpuRef, d_C, nBytes, cudaMemcpyDeviceToHost);
 
