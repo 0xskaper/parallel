@@ -118,9 +118,9 @@ int main(int argc, char **argv) {
   cudaMemcpy(gpuRef, d_C, nBytes, cudaMemcpyDeviceToHost);
 
   dim3 block_3(blockSize);
-  dim3 grid_3(nElem / block_3.x);
+  dim3 grid_3((nElem + block_3.x * 2 - 1) / (block_3.x * 2));
   iStart = cpuSecond();
-  sumOnArrayOnGPU_2<<<grid_3, block_3>>>(d_A, d_B, d_C);
+  sumOnArrayOnGPU_2<<<grid_3, block_3>>>(d_A, d_B, d_C, nElem);
   cudaDeviceSynchronize();
   iElapsed = cpuSecond() - iStart;
   printf("Execution configuration <<<%d, %d>>> || TIME -> %f \n", grid_3.x,
