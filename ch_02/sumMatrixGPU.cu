@@ -1,4 +1,5 @@
 #include <cuda_runtime.h>
+#include <cuda_runtime_api.h>
 #include <stdio.h>
 #include <sys/time.h>
 
@@ -54,6 +55,17 @@ void sumMatrixOnCPU(float *A, float *B, float *C, const int nx, const int ny) {
   }
 }
 
+__global__ void sumMatrixOnGPU1D_1D(float *MatA, float *MatB, float *MatC,
+                                    int nx, int ny) {
+  unsigned int ix = threadIdx.x + blockIdx.x * blockDim.x;
+  if (ix < nx) {
+    for (int iy = 0; iy < ny; iy++) {
+      unsigned int idx = iy * nx + ix;
+      MatC[idx] = MatA[idx] + MatB[idx];
+    }
+  }
+}
+
 __global__ void sumMatrixOnGPU(float *MatA, float *MatB, float *MatC, int nx,
                                int ny) {
   unsigned int ix = threadIdx.x + blockIdx.x * blockDim.x;
@@ -95,7 +107,7 @@ int main(int argc, char **argv) {
   iStart = cpuSecond();
   sumMatrixOnCPU(h_A, h_B, hostRef, nx, ny);
   iElapsed = cpuSecond() - iStart;
-  printf("CPU TIME ELAPSED -> %f\n", iElapsed);
+  printf("CPU TIME ELAPSED -> %f Sec\n", iElapsed);
 
   float *d_MatA, *d_MatB, *d_MatC;
   cudaMalloc((void **)&d_MatA, nBytes);
@@ -105,8 +117,9 @@ int main(int argc, char **argv) {
   cudaMemcpy(d_MatA, h_A, nBytes, cudaMemcpyHostToDevice);
   cudaMemcpy(d_MatB, h_B, nBytes, cudaMemcpyHostToDevice);
 
+  // 2D_2D -> 32x32
   int dimx = 32;
-  int dimy = 16;
+  int dimy = 32;
 
   dim3 block(dimx, dimy);
   dim3 grid((nx + block.x - 1) / block.x, (ny + block.y - 1) / block.y);
@@ -115,9 +128,56 @@ int main(int argc, char **argv) {
   sumMatrixOnGPU<<<grid, block>>>(d_MatA, d_MatB, d_MatC, nx, ny);
   cudaDeviceSynchronize();
   iElapsed = cpuSecond() - iStart;
-  printf("sumMatrixOnGPU<<<(%d, %d), (%d, %d)>>> Elapsed %f Sec\n", grid.x,
+  printf("GPU 2D_2D <<<(%d, %d), (%d, %d)>>> ELAPSED -> %f Sec\n", grid.x,
          grid.y, block.x, block.y, iElapsed);
   cudaMemcpy(gpuRef, d_MatC, nBytes, cudaMemcpyDeviceToHost);
+  checkResult(hostRef, gpuRef, nxy);
+
+  // 2D_2D -> 32x16
+  dimx = 32;
+  dimy = 32;
+
+  dim3 block_1(dimx, dimy);
+  dim3 grid_1((nx + block.x - 1) / block.x, (ny + block.y - 1) / block.y);
+
+  iStart = cpuSecond();
+  sumMatrixOnGPU<<<grid_1, block_1>>>(d_MatA, d_MatB, d_MatC, nx, ny);
+  cudaDeviceSynchronize();
+  iElapsed = cpuSecond() - iStart;
+  printf("GPU 2D_2D <<<(%d, %d), (%d, %d)>>> ELAPSED -> %f Sec\n", grid_1.x,
+         grid_1.y, block_1.x, block_1.y, iElapsed);
+  cudaMemcpy(gpuRef, d_MatC, nBytes, cudaMemcpyDeviceToHost);
+  checkResult(hostRef, gpuRef, nxy);
+
+  // 2D_2D -> 16x16
+  dimx = 16;
+  dimy = 16;
+
+  dim3 block_2(dimx, dimy);
+  dim3 grid_2((nx + block.x - 1) / block.x, (ny + block.y - 1) / block.y);
+
+  iStart = cpuSecond();
+  sumMatrixOnGPU<<<grid_2, block_2>>>(d_MatA, d_MatB, d_MatC, nx, ny);
+  cudaDeviceSynchronize();
+  iElapsed = cpuSecond() - iStart;
+  printf("GPU 2D_2D <<<(%d, %d), (%d, %d)>>> ELAPSED -> %f Sec\n", grid_2.x,
+         grid_2.y, block_2.x, block_2.y, iElapsed);
+  cudaMemcpy(gpuRef, d_MatC, nBytes, cudaMemcpyDeviceToHost);
+  checkResult(hostRef, gpuRef, nxy);
+
+  // 1D_1D
+  dimx = 32;
+  dimy = 1;
+
+  dim3 block_3(dimx, dimy);
+  dim3 grid_3((nx + block.x - 1) / block.x);
+
+  iStart = cpuSecond();
+  sumMatrixOnGPU1D_1D<<<grid_3, block_3>>>(d_MatA, d_MatB, d_MatC, nx, ny);
+  cudaDeviceSynchronize();
+  printf("GPU 1D_1D <<<(%d, %d), (%d, %d)>>> ELAPSED -> %f Sec\n", grid_3.x,
+         grid_3.y, block_3.x, block_3.y, iElapsed);
+  cudaMemcpy(gpuRef, hostRef, nBytes, cudaMemcpyDeviceToHost);
   checkResult(hostRef, gpuRef, nxy);
 
   cudaFree(d_MatA);
