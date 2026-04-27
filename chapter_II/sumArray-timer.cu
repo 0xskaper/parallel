@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
   int dev = 0;
   cudaSetDevice(dev);
 
-  int nElem = 32;
+  int nElem = 1023;
   printf("Vector size: %d\n", nElem);
 
   size_t nBytes = nElem * sizeof(float);
@@ -81,7 +81,7 @@ int main(int argc, char **argv) {
   cudaMemcpy(d_B, h_B, nBytes, cudaMemcpyHostToDevice);
 
   dim3 block(nElem);
-  dim3 grid(nElem / 128);
+  dim3 grid(nElem / block.x);
 
   printf("BLOCK.x -> %d\n", block.x);
 
