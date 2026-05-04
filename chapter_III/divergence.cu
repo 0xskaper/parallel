@@ -34,7 +34,7 @@ __global__ void mathKernel_II(float *c) {
   int tid = blockIdx.x * blockDim.x + threadIdx.x;
   float a, b;
   a = b = 0.0f;
-  if ((tid / 32) % 2 == 0) {
+  if ((tid / wrapSize) % 2 == 0) {
     a = 100.0f;
   } else {
     b = 200.0f;
