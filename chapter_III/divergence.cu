@@ -42,16 +42,28 @@ __global__ void mathKernel_II(float *c) {
 
   c[tid] = a + b;
 }
+
+__global__ void mathKernel_III(float *c) {
+  int tid = blockIdx.x * blockDim.x + threadIdx.x;
+  float a = 0.0f, b = 0.0f;
+  bool pred = (tid % 2 == 0);
+  // Both paths execute via predication — no warp divergence
+  if (pred)
+    a = 100.0f;
+  if (!pred)
+    b = 200.0f;
+  c[tid] = a + b;
+}
 int main(int argc, char **argv) {
   int dev = 0;
   cudaDeviceProp deviceProp;
   cudaGetDeviceProperties(&deviceProp, dev);
   printf("%s using Device %d: %s\n", argv[0], dev, deviceProp.name);
 
-  int size = 64;
+  int size = 1 << 16;
   int blockSize = 32;
   if (argc > 1)
-    blockSize = atoi(argv[1]);
+    size = atoi(argv[1]);
   if (argc > 2)
     blockSize = atoi(argv[2]);
   printf("Data Size -> %d", size);
@@ -88,14 +100,7 @@ int main(int argc, char **argv) {
          iElapsed);
 
   iStart = cpuSecond();
-  mathKernel_II<<<grid, block>>>(d_C);
-  cudaDeviceSynchronize();
-  iElapsed = cpuSecond() - iStart;
-  printf("mathKernel<<<%d, %d>>> -> Elapsed -> %3.2f Sec\n", grid.x, block.x,
-         iElapsed);
-
-  iStart = cpuSecond();
-  mathKernel_II<<<grid, block>>>(d_C);
+  mathKernel_III<<<grid, block>>>(d_C);
   cudaDeviceSynchronize();
   iElapsed = cpuSecond() - iStart;
   printf("mathKernel<<<%d, %d>>> -> Elapsed -> %3.2f Sec\n", grid.x, block.x,
