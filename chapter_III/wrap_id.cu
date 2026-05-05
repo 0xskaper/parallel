@@ -12,7 +12,7 @@ int main(int agc, char **argv) {
   int dev = 0;
   cudaDeviceProp deviceProp;
   cudaGetDeviceProperties(&deviceProp, dev);
-  int maxWrapsPerSM = deviceProp.maxBlocksPerMultiProcessor / 32;
+  int maxWrapsPerSM = deviceProp.maxThreadsPerMultiProcessor / 32;
   printf("\n Max Wraps -> %d", maxWrapsPerSM);
   return 0;
 }
