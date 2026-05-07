@@ -30,7 +30,7 @@ __global__ void reduceNeigbored(int *input, int *blockSum, unsigned int N) {
     return;
   for (int stride = 1; stride < blockDim.x; stride *= 2) {
     if ((tid % (2 * stride)) == 0) {
-      blockData[tid] = blockData[tid + stride];
+      blockData[tid] += blockData[tid + stride];
     }
     __syncthreads();
   }
