@@ -57,8 +57,8 @@ int main(int argc, char **argv) {
 
   sum2DMatrix<<<grid_3, block_3>>>(d_MatA, d_MatB, d_MatC, nx, ny);
 
-  dim3 block_4(16, 32);
-  dim3 grid_4(1024, 512);
+  dim3 block_4(16, 16);
+  dim3 grid_4(1024, 1024);
 
   sum2DMatrix<<<grid_4, block_4>>>(d_MatA, d_MatB, d_MatC, nx, ny);
   cudaFree(d_MatA);
