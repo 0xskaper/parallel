@@ -38,6 +38,23 @@ __global__ void reduceNeigbored(int *input, int *blockSum, unsigned int N) {
     blockSum[blockIdx.x] = blockData[0];
 }
 
+__global__ void reduceNeighborless(int *input, int *blockSum, unsigned int N) {
+  unsigned int tid = threadIdx.x;
+  unsigned int globalIdx = blockIdx.x * blockDim.x + tid;
+  int *blockData = input + blockIdx.x * blockDim.x;
+  if (globalIdx >= N)
+    return;
+  for (int stride = 1; stride < blockDim.x; stride *= 2) {
+    int index = 2 * stride * tid;
+    if (index < blockDim.x) {
+      blockData[index] += blockData[index + stride];
+    }
+    __syncthreads();
+  }
+  if (tid == 0)
+    blockSum[blockIdx.x] = blockData[0];
+}
+
 int main(int argc, char **argv) {
   int device = 0;
   CHECK(cudaSetDevice(device));
