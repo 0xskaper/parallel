@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
   int power = 24;
   if (argc < 1)
     power = atoi(argv[1]);
-  int n = 1 << power;
+  int n = 1024;
   int blockSize = 512;
   int gridSize = (n + blockSize - 1) / blockSize;
 
