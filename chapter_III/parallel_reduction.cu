@@ -28,7 +28,7 @@ __global__ void reduceNeigbored(int *input, int *blockSum, unsigned int N) {
   int *blockData = input + blockIdx.x * blockDim.x;
   if (globalIdx >= N)
     return;
-  for (int stride = 0; stride < blockDim.x; stride *= 2) {
+  for (int stride = 1; stride < blockDim.x; stride *= 2) {
     if ((tid % (2 * stride)) == 0) {
       blockData[tid] = blockData[tid + stride];
     }
@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
   int power = 24;
   if (argc < 1)
     power = atoi(argv[1]);
-  int n = 1024;
+  int n = 1 << power;
   int blockSize = 512;
   int gridSize = (n + blockSize - 1) / blockSize;
 
