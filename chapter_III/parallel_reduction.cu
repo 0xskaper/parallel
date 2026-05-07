@@ -89,6 +89,7 @@ int main(int argc, char **argv) {
 
   CHECK(cudaEventRecord(start));
   reduceNeigbored<<<gridSize, blockSize>>>(d_input, d_output, n);
+  reduceNeighborless<<<gridSize, blockSize>>>(d_input, d_output, n);
   CHECK(cudaEventRecord(stop));
   CHECK(cudaEventSynchronize(stop));
 
