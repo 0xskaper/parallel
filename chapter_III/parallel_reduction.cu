@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
   float ms = 0.0f;
   CHECK(cudaEventElapsedTime(&ms, start, stop));
 
-  CHECK(cudaMemcpy(h_input, d_output, gridSize * sizeof(int),
+  CHECK(cudaMemcpy(h_output, d_output, gridSize * sizeof(int),
                    cudaMemcpyDeviceToHost));
   int gpuSum = 0;
   for (int i = 0; i < gridSize; i++)
